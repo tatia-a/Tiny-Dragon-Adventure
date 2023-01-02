@@ -6,13 +6,13 @@ using UnityStandardAssets.CrossPlatformInput;
 public class PlayerAttack : MonoBehaviour
 {
     [Header("Attack properties")]
-    [SerializeField] GameObject fireballStartPoint;
-    [SerializeField] GameObject fireballPrefab;
+    [SerializeField] private GameObject fireballStartPoint;
+    [SerializeField] private GameObject fireballPrefab;
 
-    Animator animator;
-    [SerializeField] float attackCooldown = 2;
-    bool isThrowing = false;
-    float attackCooldownTimer;
+    [SerializeField] private float attackCooldown = 2;
+    private float attackCooldownTimer;
+
+    private Animator animator;
 
     void Start()
     {
@@ -32,16 +32,23 @@ public class PlayerAttack : MonoBehaviour
 
         if (isKeyPressed && isCooldownEnded)
         {
-            attackCooldownTimer = attackCooldown; // сброс кулдауна
+            // сброс кулдауна
+            attackCooldownTimer = attackCooldown;
 
-            // поиск направления фаербола
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition); // можно оптимизировать
-            Physics.Raycast(ray, out RaycastHit raycastHit);
-            fireballStartPoint.transform.LookAt(raycastHit.point);
-            //TODO: если луч не получился, запустить просто вперед
-            // создание фаербола
             animator.SetTrigger("attackStarted");
-            Instantiate(fireballPrefab, fireballStartPoint.transform.position, fireballStartPoint.transform.rotation);
+
+            InstantiateFireball();
         }
+    }
+
+    private void InstantiateFireball()
+    {
+        // повернуть прицел к точке
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        float distanse = 50f;
+        Vector3 lookPoint = ray.GetPoint(distanse);
+        fireballStartPoint.transform.LookAt(lookPoint);
+
+        Instantiate(fireballPrefab, fireballStartPoint.transform.position, fireballStartPoint.transform.rotation);
     }
 }
